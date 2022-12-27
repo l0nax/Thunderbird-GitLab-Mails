@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "GitLab Project Mails",
   "description": "Automatically moves and stores the GitLab Mails",
-  "version": "1.0",
+  "version": "1.1",
   "author": "Emanuel Bennici",
   "applications": {
     "gecko": {

@@ -1,12 +1,28 @@
-browser.messages.onUpdated.addListener(function (msg, props) {
+browser.messages.onUpdated.addListener(function(msg, props) {
     handleMessage(msg.folder, {
         messages: [msg],
     });
 });
 browser.messages.onNewMailReceived.addListener(handleMessage);
 
+function isKnownPath(header) {
+    // NOTE: Project path MUST be checked before group-path header!
+    // This is because we support epics and the Group_path header is present
+    // in project emails too.
+    const knownHeaders = [
+        "x-gitlab-project-path",
+        "x-gitlab-group-path",
+    ];
+
+    for (const h of knownHeaders) {
+        if (h === header) return true;
+    }
+
+    return false;
+}
+
 function handleMessage(folder, msgList) {
-    console.log("Got new message", {folder, msgList});
+    console.log("Got new message", { folder, msgList });
     if (folder.type !== "inbox") {
         return;
     }
@@ -22,10 +38,10 @@ function handleMessage(folder, msgList) {
                 console.log("Headers", full.headers);
 
                 for (const k in full.headers) {
-                    if (k !== "x-gitlab-project-path") continue;
+                    if (!isKnownPath(k)) continue;
 
                     const prjPath = full.headers[k];
-                    console.log("Moving msg to folder", {target: `Prjs/${prjPath}`});
+                    console.log("Moving msg to folder", { target: `Prjs/${prjPath}` });
                     createAndMove(account, `Prjs/${prjPath}`, msg.id);
                 }
             });
